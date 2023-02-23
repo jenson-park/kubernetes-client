@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.client.dsl.internal;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetrics;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetricsList;
 import io.fabric8.kubernetes.client.Client;
+import io.fabric8.kubernetes.client.dsl.MetricOperation;
 import io.fabric8.kubernetes.client.dsl.NodeMetricOperation;
 
 import java.util.Map;
@@ -40,7 +41,20 @@ public class NodeMetricOperationsImpl extends MetricOperationsImpl<NodeMetrics, 
 
   @Override
   public NodeMetricOperation withLabels(Map<String, String> labels) {
-    return new NodeMetricOperationsImpl(context.withLabels(labels));
+    context.labels.putAll(labels);
+    return this;
+  }
+
+  @Override
+  public NodeMetricOperation withLabel(String key) {
+    context.labels.put(key, null);
+    return this;
+  }
+
+  @Override
+  public MetricOperation<NodeMetrics, NodeMetricsList> withLabel(String key, String value) {
+    context.labels.put(key, value);
+    return this;
   }
 
   @Override

@@ -27,6 +27,9 @@ public interface PodMetricOperation extends MetricOperation<PodMetrics, PodMetri
   @Override
   PodMetricOperation withLabels(Map<String, String> labels);
 
+  @Override
+  PodMetricOperation withLabel(String key);
+
   /**
    * Get PodMetricsList for a namespace.
    *
@@ -43,5 +46,4 @@ public interface PodMetricOperation extends MetricOperation<PodMetrics, PodMetri
    * @return PodMetric corresponding to specified Pod
    */
   PodMetrics metrics(String namespace, String podName);
-
 }

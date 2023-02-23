@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.client.dsl.internal;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.PodMetrics;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.PodMetricsList;
 import io.fabric8.kubernetes.client.Client;
+import io.fabric8.kubernetes.client.dsl.MetricOperation;
 import io.fabric8.kubernetes.client.dsl.PodMetricOperation;
 
 import java.util.Map;
@@ -55,6 +56,19 @@ public class PodMetricOperationsImpl extends MetricOperationsImpl<PodMetrics, Po
 
   @Override
   public PodMetricOperation withLabels(Map<String, String> labels) {
-    return new PodMetricOperationsImpl(context.withLabels(labels));
+    context.labels.putAll(labels);
+    return this;
+  }
+
+  @Override
+  public PodMetricOperation withLabel(String key) {
+    context.labels.put(key, null);
+    return this;
+  }
+
+  @Override
+  public MetricOperation<PodMetrics, PodMetricsList> withLabel(String key, String value) {
+    context.labels.put(key, value);
+    return this;
   }
 }

@@ -33,6 +33,15 @@ public interface MetricOperation<T, L> {
   MetricOperation<T, L> withLabels(Map<String, String> labels);
 
   /**
+   * Filter metrics via label exists.
+   * Params: key - label key
+   * Returns: MetricOperation with which you can call metrics() for getting filtered Metrics
+   */
+  MetricOperation<T, L> withLabel(String key);
+
+  MetricOperation<T, L> withLabel(String key, String value);
+
+  /**
    * Get a list of metrics
    *
    * @return a list object for metrics

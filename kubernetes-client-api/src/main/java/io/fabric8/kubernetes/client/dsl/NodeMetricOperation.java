@@ -27,6 +27,9 @@ public interface NodeMetricOperation
   @Override
   NodeMetricOperation withLabels(Map<String, String> labels);
 
+  @Override
+  NodeMetricOperation withLabel(String key);
+
   /**
    * Get NodeMetric with specified name
    *

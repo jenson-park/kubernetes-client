@@ -24,6 +24,7 @@ import io.fabric8.kubernetes.client.utils.Utils;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public abstract class MetricOperationsImpl<T, L> extends OperationSupport implements MetricOperation<T, L> {
   public static final String METRIC_ENDPOINT_URL = "apis/metrics.k8s.io/v1beta1/";
@@ -108,7 +109,11 @@ public abstract class MetricOperationsImpl<T, L> extends OperationSupport implem
 
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<String, String> entry : labels.entrySet()) {
-      sb.append(entry.getKey()).append("=").append(entry.getValue()).append(",");
+      sb.append(entry.getKey());
+      if (Objects.nonNull(entry.getValue())) {
+        sb.append("=").append(entry.getValue());
+      }
+      sb.append(",");
     }
     httpUrlBuilder.addQueryParameter("labelSelector", sb.substring(0, sb.toString().length() - 1));
     return httpUrlBuilder.toString();

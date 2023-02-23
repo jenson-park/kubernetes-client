@@ -108,6 +108,82 @@ class MetricsTest {
   }
 
   @Test
+  void testPodMetricWithLabelOnlyKey() throws Exception {
+    // Given
+    server.expect().get().withPath("/apis/metrics.k8s.io/v1beta1/pods?labelSelector=foo")
+        .andReturn(HttpURLConnection.HTTP_OK, new PodMetricsListBuilder().withItems(getPodMetric()).build())
+        .once();
+
+    // When
+    PodMetricsList podMetricsList = client.top().pods()
+        .withLabel("foo")
+        .metrics();
+
+    // Then
+    assertThat(podMetricsList)
+        .isNotNull()
+        .extracting(PodMetricsList::getItems).asList().hasSize(1);
+  }
+
+  @Test
+  void testPodMetricWithLabelKeyAndValue() throws Exception {
+    // Given
+    server.expect().get().withPath("/apis/metrics.k8s.io/v1beta1/pods?labelSelector=foo%3Dbar")
+        .andReturn(HttpURLConnection.HTTP_OK, new PodMetricsListBuilder().withItems(getPodMetric()).build())
+        .once();
+
+    // When
+    PodMetricsList podMetricsList = client.top().pods()
+        .withLabel("foo", "bar")
+        .metrics();
+
+    // Then
+    assertThat(podMetricsList)
+        .isNotNull()
+        .extracting(PodMetricsList::getItems).asList().hasSize(1);
+  }
+
+  @Test
+  void testPodMetricMultipleWithLabelMethod() throws Exception {
+    // Given
+    server.expect().get()
+        .withPath("/apis/metrics.k8s.io/v1beta1/pods?labelSelector=" + Utils.toUrlEncoded("bar=false,foo"))
+        .andReturn(HttpURLConnection.HTTP_OK, new PodMetricsListBuilder().withItems(getPodMetric()).build())
+        .once();
+
+    // When
+    PodMetricsList podMetricsList = client.top().pods()
+        .withLabel("foo")
+        .withLabel("bar", "false")
+        .metrics();
+
+    // Then
+    assertThat(podMetricsList)
+        .isNotNull()
+        .extracting(PodMetricsList::getItems).asList().hasSize(1);
+  }
+
+  @Test
+  void testPodMetricWithLabelAndWithLabels() throws Exception {
+    // Given
+    server.expect().get()
+        .withPath("/apis/metrics.k8s.io/v1beta1/pods?labelSelector=" + Utils.toUrlEncoded("bar=false,foo"))
+        .andReturn(HttpURLConnection.HTTP_OK, new PodMetricsListBuilder().withItems(getPodMetric()).build())
+        .once();
+
+    // When
+    PodMetricsList podMetricsList = client.top().pods()
+        .withLabel("foo")
+        .withLabels(Collections.singletonMap("bar", "false"))
+        .metrics();
+
+    // Then
+    assertThat(podMetricsList)
+        .isNotNull()
+        .extracting(PodMetricsList::getItems).asList().hasSize(1);
+  }
+
+  @Test
   void testPodMetricWithLabelsAllNamespaces() throws Exception {
     // Given
     server.expect().get().withPath("/apis/metrics.k8s.io/v1beta1/pods?labelSelector=foo%3Dbar")
