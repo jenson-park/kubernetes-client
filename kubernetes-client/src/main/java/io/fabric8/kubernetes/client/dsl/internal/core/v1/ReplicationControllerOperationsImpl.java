@@ -71,15 +71,10 @@ public class ReplicationControllerOperationsImpl extends
   }
 
   @Override
-  public ReplicationController withReplicas(int count) {
-    return accept(r -> r.getSpec().setReplicas(count));
-  }
-
-  @Override
   public RollingUpdater<ReplicationController, ReplicationControllerList> getRollingUpdater(long rollingTimeout,
       TimeUnit rollingTimeUnit) {
     return new ReplicationControllerRollingUpdater(context.getClient(), namespace, rollingTimeUnit.toMillis(rollingTimeout),
-        config.getLoggingInterval());
+        getRequestConfig().getLoggingInterval());
   }
 
   @Override

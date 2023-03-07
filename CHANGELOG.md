@@ -8,16 +8,23 @@
 * Fix #4832: NO_PROXY can match cidr with bit suffix <10
 * Fix #4851: adding buffer cloning to ensure buffers cannot be modified after sending
 * Fix #4794: improving the semantics of manually calling informer stop
+* Fix #4797: OkHttpClientFactory.additionalConfig can be used to override the default OkHttp Dispatcher
 * Fix #4798: fix leader election release on cancel
 * Fix #4815: (java-generator) create target download directory if it doesn't exist
+* Fix #4846: allowed for pod read / copy operations to distinguish when the target doesn't exist
 * Fix #4818: [java-generator] Escape `*/` in generated JavaDocs
 * Fix #4823: (java-generator) handle special characters in field names
 * Fix #4723: [java-generator] Fix a race in the use of JavaParser hitting large CRDs
 * Fix #4885: addresses a potential hang in the jdk client with exec stream reading
+* Fix #4891: address vertx not completely reading exec streams
+* Fix #4899: BuildConfigs.instantiateBinary().fromFile() does not time out
+* Fix #4908: using the response headers in the vertx response
+* Fix #4947: typo in HttpClient.Factory scoring system logic
 
 #### Improvements
 * Fix #4675: adding a fully client side timeout for informer watches
 * Fix #3805: DeletionTimestamp and Finalizer support in Mock server.
+* Fix #4638: adding a way to set the full object meta on a leadership election lock, this can be used to set owner references
 * Fix #4644: generate CRDs in parallel and optimize code
 * Fix #4659: added a generic support(apiversion, kind) method in addition to the class based check
 * Fix #4724: Private configuration classes cause trouble with Java native (reflection)
@@ -31,6 +38,8 @@
 * Fix #4863: default HttpClient retry logic to 100ms interval
 * Fix #4863: default HttpClient retry logic to 10 attempts
 * Fix #4865: (java-generator) performance improvements
+* Fix #4873: Update all samples in `kubernetes-examples/` module to use up to date code
+* Fix #4906: URLFromIngressImpl considers Ingress in `networking.k8s.io` apiGroup while resolving Ingress
 
 #### Dependency Upgrade
 * Fix #4655: Upgrade Fabric8 Kubernetes Model to Kubernetes v1.26.0
@@ -41,8 +50,17 @@
 * Fix #4758: added support for pod ephemeral container operations
 
 #### _**Note**_: Breaking changes
+* Fix #4708: The signature of the Interceptor methods changed to pass the full HttpRequest, rather than just the headers, and explicitly pass request tags - in particular the RequestConfig.  To simplify authentication concerns the following fields have been removed from RequestConfig: username, password, oauthToken, and oauthTokenProvider.  Not all HttpClient implementation support setting the connectionTimeout at a request level, thus it was removed from the RequestConfig as well.
 * Fix #4659: The SupportTestingClient interface has been deprecated.  Please use one of the supports methods or getApiGroup to determine what is available on the api server.
+* Fix #4802: to ease developer burden, and potentially bad behavior with the vertx client, the callbacks for Watcher and ResourceEventHandler will no longer be made by an HttpClient thread, but rather from the thread pool associated with the KubernetesClient.  Please ensure that if you are customizing the Executor supplied to the client that it has sufficient threads to handle these callbacks.
 * Fix #4825: removed or deprecated/moved methods that are unrelated to the rolling timeout from ImageEditReplacePatchable.  Deprecated rollout methods for timeout and edit - future versions will not support
+* Fix #4826: removed RequestConfig upload connection and rolling timeouts.  Both were no longer used with no plans to re-introduce their usage.
+* Fix #4861: several breaking changes related to resourceVersion handling and the replace operation:
+  - `replace` is deprecated, you should use `update` instead. If you set the resourceVersion to null it will not be optimistically locked.
+  - `createOrReplace` is deprecated, you should use server side apply instead.
+  - `edit` uses now optimistic locking by default. To disable locking you should change your methods to follow this pattern: `.edit(pod -> new PodBuilder(pod).editMetadata().withResourceVersion(null)//...`
+  - JSON patch methods using an item for the diff generation such as edit or patch will no longer omit the resourceVersion in the patch.  If you want the patch to be unlocked, then set the resourceVersion to null on the item to be patched.
+  - internal logic to mimic an apply that modify an item prior to a JSON patch is deprecated - you should instead build the item to be patched off of base version, such as with the edit method.
 
 ### 6.4.1 (2023-01-31)
 
